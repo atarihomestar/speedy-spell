@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button, TextField } from "@mui/material";
 import Stats from "./Stats";
 

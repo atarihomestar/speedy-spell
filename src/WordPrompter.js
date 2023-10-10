@@ -10,11 +10,20 @@ const WordPrompter = ({ words }) => {
   );
   const [status, setStatus] = useState("waiting_to_start");
   const [started, setStarted] = useState(false);
-  const [word, setWord] = useState(words[0]);
   const [countdown, setCountdown] = useState(5);
-  const [spelling, setSpelling] = useState("");
+  const [attemptedSpelling, setAttemptedSpelling] = useState("");
   const [message, setMessage] = useState("");
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
+
+  const updateWordStats = (word, spelledCorrectly) => {
+    const wordIndex = wordStats.findIndex(
+      (item) => item.word === words[currentWordIndex]
+    );
+    const updatedWordStats = [...wordStats];
+    updatedWordStats[wordIndex].attempts += 1;
+    updatedWordStats[wordIndex].correct = spelledCorrectly;
+    setWordStats(updatedWordStats);
+  };
 
   const showCountdown = () => {
     setStatus("showing_countdown");
@@ -27,7 +36,7 @@ const WordPrompter = ({ words }) => {
         } else {
           clearInterval(intervalId);
           setStatus("waiting_for_spelling");
-          setSpelling("");
+          setAttemptedSpelling("");
           return 0;
         }
       });
@@ -46,31 +55,44 @@ const WordPrompter = ({ words }) => {
     const { key } = event;
     if (key === "Enter" || key === "Return") {
       setStatus("showing_results");
-      if (spelling === word) {
+      if (attemptedSpelling === words[currentWordIndex]) {
         setMessage("Correct!");
       } else {
-        setMessage(`Incorrect! ${word} NOT ${spelling}`);
+        setMessage(
+          `Incorrect! ${words[currentWordIndex]} NOT ${attemptedSpelling}`
+        );
       }
+      updateWordStats(
+        words[currentWordIndex],
+        attemptedSpelling === words[currentWordIndex]
+      );
     }
 
     if (key === "Backspace") {
-      setSpelling(spelling.slice(0, -1));
+      setAttemptedSpelling(attemptedSpelling.slice(0, -1));
     }
 
     if (/^[A-Za-z]$/.test(key)) {
-      setSpelling(spelling + key);
+      setAttemptedSpelling(attemptedSpelling + key);
     }
+  };
+
+  const getNextIncorrectWordIndex = (startingIndex) => {
+    const wordsLength = wordStats.length;
+    for (let i = 1; i <= wordsLength; i++) {
+      const nextIndex = (startingIndex + i) % wordsLength;
+      const nextObject = wordStats[nextIndex];
+      if (!nextObject.correct) {
+        return nextIndex;
+      }
+    }
+    return -1;
   };
 
   const mainButtonClick = () => {
     if (started) {
       setCurrentWordIndex((prevIndex) => {
-        if (prevIndex < words.length - 1) {
-          setWord(words[prevIndex + 1]);
-          return prevIndex + 1;
-        } else {
-          return 0;
-        }
+        return getNextIncorrectWordIndex(prevIndex);
       });
     } else {
       setStarted(true);
@@ -82,9 +104,22 @@ const WordPrompter = ({ words }) => {
     showWord();
   };
 
+  if (currentWordIndex === -1) {
+    return (
+      <div style={{ textAlign: "center", fontSize: "24px" }}>
+        <p>You spelled all the words correctly!</p>
+        <Button variant="contained" onClick={() => setCurrentWordIndex(0)}>
+          Repeat
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div className="container">
-      {status === "showing_word" && <p className="text">{word}</p>}
+      {status === "showing_word" && (
+        <p className="text">{words[currentWordIndex]}</p>
+      )}
       {status === "showing_countdown" && <p className="text">{countdown}</p>}
       {status === "waiting_for_spelling" && (
         <div
@@ -101,7 +136,7 @@ const WordPrompter = ({ words }) => {
             id="spelling"
             label="Spelling"
             variant="outlined"
-            value={spelling}
+            value={attemptedSpelling}
             onKeyDown={handleKeyDown}
             autoFocus
             autoComplete="off"

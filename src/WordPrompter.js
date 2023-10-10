@@ -10,14 +10,15 @@ const WordPrompter = ({ words }) => {
   );
   const [status, setStatus] = useState("waiting_to_start");
   const [started, setStarted] = useState(false);
-  const [word, setWord] = useState(words[0]);
   const [countdown, setCountdown] = useState(5);
   const [spelling, setSpelling] = useState("");
   const [message, setMessage] = useState("");
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
 
   const updateWordStats = (word, spelledCorrectly) => {
-    const wordIndex = wordStats.findIndex((item) => item.word === word);
+    const wordIndex = wordStats.findIndex(
+      (item) => item.word === words[currentWordIndex]
+    );
     const updatedWordStats = [...wordStats];
     updatedWordStats[wordIndex].attempts += 1;
     updatedWordStats[wordIndex].correct = spelledCorrectly;
@@ -54,12 +55,15 @@ const WordPrompter = ({ words }) => {
     const { key } = event;
     if (key === "Enter" || key === "Return") {
       setStatus("showing_results");
-      if (spelling === word) {
+      if (spelling === words[currentWordIndex]) {
         setMessage("Correct!");
       } else {
-        setMessage(`Incorrect! ${word} NOT ${spelling}`);
+        setMessage(`Incorrect! ${words[currentWordIndex]} NOT ${spelling}`);
       }
-      updateWordStats(word, spelling === word);
+      updateWordStats(
+        words[currentWordIndex],
+        spelling === words[currentWordIndex]
+      );
     }
 
     if (key === "Backspace") {
@@ -75,7 +79,7 @@ const WordPrompter = ({ words }) => {
     if (started) {
       setCurrentWordIndex((prevIndex) => {
         if (prevIndex < words.length - 1) {
-          setWord(words[prevIndex + 1]);
+          //setWord(words[prevIndex + 1]);
           return prevIndex + 1;
         } else {
           return 0;
@@ -93,7 +97,9 @@ const WordPrompter = ({ words }) => {
 
   return (
     <div className="container">
-      {status === "showing_word" && <p className="text">{word}</p>}
+      {status === "showing_word" && (
+        <p className="text">{words[currentWordIndex]}</p>
+      )}
       {status === "showing_countdown" && <p className="text">{countdown}</p>}
       {status === "waiting_for_spelling" && (
         <div

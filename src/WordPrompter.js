@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button, TextField } from "@mui/material";
+import Stats from "./Stats";
+
 import "./WordPrompter.css";
 
 const WordPrompter = ({ words }) => {
@@ -51,21 +53,25 @@ const WordPrompter = ({ words }) => {
     }, 3000);
   };
 
+  const showResults = () => {
+    setStatus("showing_results");
+    if (attemptedSpelling === words[currentWordIndex]) {
+      setMessage("Correct!");
+    } else {
+      setMessage(
+        `Incorrect! ${words[currentWordIndex]} NOT ${attemptedSpelling}`
+      );
+    }
+    updateWordStats(
+      words[currentWordIndex],
+      attemptedSpelling === words[currentWordIndex]
+    );
+  };
+
   const handleKeyDown = (event) => {
     const { key } = event;
     if (key === "Enter" || key === "Return") {
-      setStatus("showing_results");
-      if (attemptedSpelling === words[currentWordIndex]) {
-        setMessage("Correct!");
-      } else {
-        setMessage(
-          `Incorrect! ${words[currentWordIndex]} NOT ${attemptedSpelling}`
-        );
-      }
-      updateWordStats(
-        words[currentWordIndex],
-        attemptedSpelling === words[currentWordIndex]
-      );
+      showResults();
     }
 
     if (key === "Backspace") {
@@ -106,11 +112,16 @@ const WordPrompter = ({ words }) => {
 
   if (currentWordIndex === -1) {
     return (
-      <div style={{ textAlign: "center", fontSize: "24px" }}>
-        <p>You spelled all the words correctly!</p>
-        <Button variant="contained" onClick={() => setCurrentWordIndex(0)}>
-          Repeat
-        </Button>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          margin: "0",
+        }}
+      >
+        <Stats wordStats={wordStats} />
       </div>
     );
   }
@@ -141,13 +152,18 @@ const WordPrompter = ({ words }) => {
             autoFocus
             autoComplete="off"
           />
-          <Button
-            style={{ maxWidth: "200px", margin: "0 auto" }}
-            variant="contained"
-            onClick={repeatClick}
-          >
-            Repeat
-          </Button>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <Button variant="contained" onClick={repeatClick}>
+              Repeat
+            </Button>
+            <Button
+              variant="contained"
+              onClick={showResults}
+              style={{ width: "97px" }}
+            >
+              Check
+            </Button>
+          </div>
         </div>
       )}
       {status === "showing_results" && (

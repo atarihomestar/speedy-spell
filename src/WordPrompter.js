@@ -16,6 +16,14 @@ const WordPrompter = ({ words }) => {
   const [message, setMessage] = useState("");
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
 
+  const updateWordStats = (word, spelledCorrectly) => {
+    const wordIndex = wordStats.findIndex((item) => item.word === word);
+    const updatedWordStats = [...wordStats];
+    updatedWordStats[wordIndex].attempts += 1;
+    updatedWordStats[wordIndex].correct = spelledCorrectly;
+    setWordStats(updatedWordStats);
+  };
+
   const showCountdown = () => {
     setStatus("showing_countdown");
     setCountdown(5);
@@ -51,6 +59,7 @@ const WordPrompter = ({ words }) => {
       } else {
         setMessage(`Incorrect! ${word} NOT ${spelling}`);
       }
+      updateWordStats(word, spelling === word);
     }
 
     if (key === "Backspace") {

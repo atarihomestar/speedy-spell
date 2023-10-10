@@ -27,6 +27,18 @@ const WordPrompter = ({ words }) => {
     setWordStats(updatedWordStats);
   };
 
+  function resetWordStats() {
+    const newWordStats = wordStats.map((wordStat) => {
+      return {
+        ...wordStat,
+        attempts: 0,
+        correct: false,
+      };
+    });
+
+    setWordStats(newWordStats);
+  }
+
   const showCountdown = () => {
     setStatus("showing_countdown");
     setCountdown(5);
@@ -106,8 +118,18 @@ const WordPrompter = ({ words }) => {
     showWord();
   };
 
+  const resetClick = () => {
+    resetWordStats();
+    setCurrentWordIndex(0);
+    showWord();
+  };
+
   const repeatClick = () => {
     showWord();
+  };
+
+  const passes = () => {
+    return Math.max(...wordStats.map((word) => word.attempts));
   };
 
   if (currentWordIndex === -1) {
@@ -121,7 +143,26 @@ const WordPrompter = ({ words }) => {
           margin: "0",
         }}
       >
-        <Stats wordStats={wordStats} />
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            textAlign: "center", // Center the text horizontally
+          }}
+        >
+          <div style={{ marginBottom: "10px" }}>
+            <p>
+              It took just <span style={{ fontSize: "36px" }}>{passes()}</span>{" "}
+              {passes() === 1 ? "pass " : "passes "}
+              to get all the words correct!
+            </p>
+            <Stats wordStats={wordStats} />
+          </div>
+          <Button variant="contained" onClick={resetClick}>
+            Reset
+          </Button>
+        </div>
       </div>
     );
   }

@@ -7,7 +7,18 @@ import NotFound from "./NotFound";
 import { Routes, Route } from "react-router-dom";
 
 const SpeedySpeller = () => {
-  const wordList = ["apple", "banana"];
+  const wordList = [
+    "conduct",
+    "commit",
+    "insist",
+    "invent",
+    "impact",
+    "obstruct",
+    "construct",
+    "instruct",
+    "six",
+    "seven",
+  ];
 
   return (
     <>

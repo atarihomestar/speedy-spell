@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button, TextField } from "@mui/material";
 import Stats from "./Stats";
+import SmallStats from "./SmallStats";
 
 import "./WordPrompter.css";
 
@@ -180,10 +181,13 @@ const WordPrompter = ({ words }) => {
             flexDirection: "column",
             textAlign: "center",
             fontSize: "24px",
-            height: "100px",
+            height: "140px",
             justifyContent: "space-between",
           }}
         >
+          <div style={{ display: "flex", alignItems: "flex-start" }}>
+            <SmallStats wordStats={wordStats} />
+          </div>
           <TextField
             id="spelling"
             label="Spelling"

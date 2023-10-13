@@ -1,5 +1,5 @@
 import MyAppBar from "./MyAppBar";
-import WordPrompter from "../WordPrompter";
+import WordPrompter from "./WordPrompter";
 import Login from "./Login";
 import Signup from "./Signup";
 import NotFound from "./NotFound";

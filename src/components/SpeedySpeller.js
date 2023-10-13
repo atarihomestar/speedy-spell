@@ -3,7 +3,6 @@ import WordPrompter from "../WordPrompter";
 import Login from "./Login";
 import Signup from "./Signup";
 import NotFound from "./NotFound";
-import PrivateRoute from "./PrivateRoute";
 
 import { Routes, Route } from "react-router-dom";
 

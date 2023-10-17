@@ -5,7 +5,20 @@ import SmallStats from "./SmallStats";
 
 import "./WordPrompter.css";
 
-const WordPrompter = ({ words }) => {
+const WordPrompter = () => {
+  const words = [
+    "conduct",
+    "commit",
+    "insist",
+    "invent",
+    "impact",
+    "obstruct",
+    "construct",
+    "instruct",
+    "six",
+    "seven",
+  ];
+
   const [wordStats, setWordStats] = useState(
     words.map((word) => {
       return { word: word, attempts: 0, correct: false };

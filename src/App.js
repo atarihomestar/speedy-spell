@@ -1,5 +1,6 @@
 import { BrowserRouter as Router } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
+import { AppStateProvider } from "./contexts/AppStateContext";
 import SpeedySpeller from "./components/SpeedySpeller";
 
 const App = () => {
@@ -7,7 +8,9 @@ const App = () => {
     <>
       <Router>
         <AuthProvider>
-          <SpeedySpeller />
+          <AppStateProvider>
+            <SpeedySpeller />
+          </AppStateProvider>
         </AuthProvider>
       </Router>
     </>

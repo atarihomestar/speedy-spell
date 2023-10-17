@@ -10,8 +10,8 @@ const Login = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const { login } = useAuth();
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async () => {
     try {
@@ -23,6 +23,12 @@ const Login = () => {
       setError("Failed to log in");
     }
     setLoading(false);
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter") {
+      handleSubmit();
+    }
   };
 
   return (
@@ -61,6 +67,7 @@ const Login = () => {
           fullWidth
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          onKeyDown={handleKeyDown}
           sx={{ marginY: "20px" }}
         />
         <Button

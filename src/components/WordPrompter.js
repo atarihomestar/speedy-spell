@@ -1,243 +1,357 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import Snackbar from "@mui/material/Snackbar";
+import MuiAlert from "@mui/material/Alert";
+
 import { Button, TextField } from "@mui/material";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
 import Stats from "./Stats";
 import SmallStats from "./SmallStats";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+
+import { getWordLists } from "../utils/firebase";
+import { useAuth } from "../contexts/AuthContext";
 
 import "./WordPrompter.css";
 
 const WordPrompter = () => {
-  const words = [
-    "conduct",
-    "commit",
-    "insist",
-    "invent",
-    "impact",
-    "obstruct",
-    "construct",
-    "instruct",
-    "six",
-    "seven",
-  ];
+  const msg = new SpeechSynthesisUtterance();
 
-  const [wordStats, setWordStats] = useState(
-    words.map((word) => {
-      return { word: word, attempts: 0, correct: false };
-    })
-  );
-  const [status, setStatus] = useState("waiting_to_start");
-  const [started, setStarted] = useState(false);
-  const [countdown, setCountdown] = useState(5);
-  const [attemptedSpelling, setAttemptedSpelling] = useState("");
-  const [message, setMessage] = useState("");
-  const [currentWordIndex, setCurrentWordIndex] = useState(0);
+  const { user } = useAuth();
+  const spellingAttemptRef = useRef();
 
-  const updateWordStats = (word, spelledCorrectly) => {
-    const wordIndex = wordStats.findIndex(
-      (item) => item.word === words[currentWordIndex]
-    );
-    const updatedWordStats = [...wordStats];
-    updatedWordStats[wordIndex].attempts += 1;
-    updatedWordStats[wordIndex].correct = spelledCorrectly;
-    setWordStats(updatedWordStats);
-  };
+  const [wordLists, setWordLists] = useState(null);
+  const [currentWordList, setCurrentWordList] = useState(null);
+  const [currentWordIndex, setCurrentWordIndex] = useState(-1);
+  const [spellingAttempt, setSpellingAttempt] = useState("");
+  const [wordStats, setWordStats] = useState(null);
+  const [open, setOpen] = useState(false);
+  const [correct, setCorrect] = useState(false);
 
-  function resetWordStats() {
-    const newWordStats = wordStats.map((wordStat) => {
-      return {
-        ...wordStat,
-        attempts: 0,
-        correct: false,
-      };
-    });
+  const [operation, setOperation] = useState("");
 
-    setWordStats(newWordStats);
-  }
+  useEffect(() => {
+    (async () => {
+      const newWordLists = await getWordLists(user);
+      setWordLists(newWordLists);
+      setCurrentWordList(newWordLists[0]);
+      setOperation("waiting-to-start");
+    })();
+  }, [user]);
 
-  const showCountdown = () => {
-    setStatus("showing_countdown");
-    setCountdown(5);
-
-    const intervalId = setInterval(() => {
-      setCountdown((prevCountdown) => {
-        if (prevCountdown > 1) {
-          return prevCountdown - 1;
-        } else {
-          clearInterval(intervalId);
-          setStatus("waiting_for_spelling");
-          setAttemptedSpelling("");
-          return 0;
-        }
-      });
-    }, 1000);
-  };
-
-  const showWord = () => {
-    setStatus("showing_word");
-    const timeoutId = setTimeout(() => {
-      showCountdown();
-      clearTimeout(timeoutId);
-    }, 3000);
-  };
-
-  const showResults = () => {
-    setStatus("showing_results");
-    if (attemptedSpelling === words[currentWordIndex]) {
-      setMessage("Correct!");
-    } else {
-      setMessage(
-        `Incorrect! ${words[currentWordIndex]} NOT ${attemptedSpelling}`
-      );
-    }
-    updateWordStats(
-      words[currentWordIndex],
-      attemptedSpelling === words[currentWordIndex]
-    );
-  };
-
-  const handleKeyDown = (event) => {
-    const { key } = event;
-    if (key === "Enter" || key === "Return") {
-      showResults();
-    }
-
-    if (key === "Backspace") {
-      setAttemptedSpelling(attemptedSpelling.slice(0, -1));
-    }
-
-    if (/^[A-Za-z]$/.test(key)) {
-      setAttemptedSpelling(attemptedSpelling + key);
-    }
-  };
-
-  const getNextIncorrectWordIndex = (startingIndex) => {
-    const wordsLength = wordStats.length;
-    for (let i = 1; i <= wordsLength; i++) {
-      const nextIndex = (startingIndex + i) % wordsLength;
-      const nextObject = wordStats[nextIndex];
-      if (!nextObject.correct) {
-        return nextIndex;
+  const getWordFromList = (index) => {
+    console.log("currentWordList", currentWordList);
+    if (currentWordList) {
+      let currentWords = currentWordList.words
+        .split(",")
+        .map((word) => word.trim());
+      if (index <= currentWords.length - 1) {
+        return currentWords[index];
       }
     }
-    return -1;
+    return null;
   };
 
-  const mainButtonClick = () => {
-    if (started) {
-      setCurrentWordIndex((prevIndex) => {
-        return getNextIncorrectWordIndex(prevIndex);
-      });
-    } else {
-      setStarted(true);
+  useEffect(() => {
+    console.log("in currentWordIndex useEffect");
+    if (operation === "started") {
+      if (currentWordIndex != -1 && currentWordList) {
+        console.log("got here");
+        let word = getWordFromList(currentWordIndex);
+        if (word) {
+          msg.text = word;
+          window.speechSynthesis.speak(msg);
+        }
+      }
     }
-    showWord();
-  };
+  }, [currentWordIndex]);
 
-  const resetClick = () => {
-    resetWordStats();
-    setCurrentWordIndex(0);
-    showWord();
-  };
-
-  const repeatClick = () => {
-    showWord();
-  };
-
-  const passes = () => {
-    return Math.max(...wordStats.map((word) => word.attempts));
-  };
-
-  if (currentWordIndex === -1) {
-    return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-          margin: "0",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            textAlign: "center", // Center the text horizontally
-          }}
-        >
-          <div style={{ marginBottom: "10px" }}>
-            <p>
-              It took just <span style={{ fontSize: "36px" }}>{passes()}</span>{" "}
-              {passes() === 1 ? "pass " : "passes "}
-              to get all the words correct!
-            </p>
-            <Stats wordStats={wordStats} />
-          </div>
-          <Button variant="contained" onClick={resetClick}>
-            Reset
-          </Button>
-        </div>
-      </div>
+  const handleChange = (event) => {
+    const selectedWordList = wordLists.find(
+      (wordList) => wordList.id === event.target.value
     );
+
+    if (selectedWordList) {
+      setCurrentWordList(selectedWordList);
+      setCurrentWordIndex(-1);
+      setOperation("waiting-to-start");
+    }
+  };
+
+  const setupWordStats = () => {
+    let currentWords = currentWordList.words
+      .split(",")
+      .map((word) => word.trim());
+    let newWordStats = [];
+    for (let i = 0; i < currentWords.length; i++) {
+      newWordStats.push({
+        word: currentWords[i],
+        correct: false,
+        incorrect: 0,
+        numberOfAttempts: 0,
+        incorrectAttempts: [],
+      });
+    }
+    setWordStats(newWordStats);
+  };
+
+  const handleStartClick = () => {
+    console.log("handleStartClick");
+    console.log("currentWordList", currentWordList);
+    console.log("currentWordIndex", currentWordIndex);
+    setOperation("started");
+    setCurrentWordIndex(0);
+    setSpellingAttempt("");
+    setupWordStats();
+  };
+
+  const updateWordStats = (spellingAttempt, word) => {
+    console.log("spellingAttempt: !" + spellingAttempt + "!");
+    console.log("word: !" + word + "!");
+    console.log(spellingAttempt, word);
+    let newWordStats = [...wordStats];
+    let wordStat = newWordStats.find((wordStat) => {
+      return wordStat.word.toLowerCase() === word.toLowerCase();
+    });
+    if (wordStat) {
+      if (spellingAttempt.toLowerCase() !== word.toLowerCase()) {
+        wordStat.incorrect++;
+        wordStat.incorrectAttempts.push(spellingAttempt);
+      } else {
+        wordStat.correct = true;
+      }
+      wordStat.numberOfAttempts++;
+      setWordStats(newWordStats);
+    }
+  };
+
+  const allWordsCorrect = () => {
+    let allCorrect = true;
+    for (let i = 0; i < wordStats.length; i++) {
+      if (!wordStats[i].correct) {
+        allCorrect = false;
+        break;
+      }
+    }
+    return allCorrect;
+  };
+
+  const getNextIncorrectWordIndex = (wordStats, currentWordIndex) => {
+    let nextIncorrectIndex = -1;
+    for (let i = currentWordIndex + 1; i < wordStats.length; i++) {
+      if (!wordStats[i].correct) {
+        nextIncorrectIndex = i;
+        break;
+      }
+    }
+    if (nextIncorrectIndex === -1) {
+      for (let i = 0; i < currentWordIndex; i++) {
+        if (!wordStats[i].correct) {
+          nextIncorrectIndex = i;
+          break;
+        }
+      }
+    }
+    return nextIncorrectIndex;
+  };
+
+  const handleNextClick = () => {
+    updateWordStats(spellingAttempt, getWordFromList(currentWordIndex));
+    if (spellingAttempt.toLowerCase() === getWordFromList(currentWordIndex)) {
+      setCorrect(true);
+      setOpen(true);
+    } else {
+      setCorrect(false);
+      setOpen(true);
+    }
+
+    if (allWordsCorrect()) {
+      setOperation("finished");
+    }
+
+    const nextIncorrectIndex = getNextIncorrectWordIndex(
+      wordStats,
+      currentWordIndex
+    );
+    setCurrentWordIndex(nextIncorrectIndex);
+    setSpellingAttempt("");
+    spellingAttemptRef.current.focus();
+  };
+
+  const handleRepeatClick = () => {
+    let word = getWordFromList(currentWordIndex);
+    if (word) {
+      msg.text = word;
+      window.speechSynthesis.speak(msg);
+      spellingAttemptRef.current.focus();
+    }
+  };
+
+  function Alert(props) {
+    return <MuiAlert elevation={6} variant="filled" {...props} />;
   }
 
+  const handleClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpen(false);
+  };
+
+  const handleSpellingAttemptChange = (event) => {
+    setSpellingAttempt(event.target.value);
+  };
+
   return (
-    <div className="container">
-      {status === "showing_word" && (
-        <p className="text">{words[currentWordIndex]}</p>
-      )}
-      {status === "showing_countdown" && <p className="text">{countdown}</p>}
-      {status === "waiting_for_spelling" && (
+    <>
+      <Snackbar
+        open={open}
+        autoHideDuration={3000}
+        onClose={handleClose}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <div>
+          <Alert onClose={handleClose} severity={correct ? "success" : "error"}>
+            {correct ? "Correct!" : "Incorrect!"}
+          </Alert>
+        </div>
+      </Snackbar>
+      {currentWordList && (
         <div
+          className="container"
           style={{
             display: "flex",
             flexDirection: "column",
-            textAlign: "center",
-            fontSize: "24px",
-            height: "140px",
-            justifyContent: "space-between",
+            width: "400px",
+            justifyContent: "center",
+            margin: "0 auto",
           }}
         >
-          <div style={{ display: "flex", alignItems: "flex-start" }}>
-            <SmallStats wordStats={wordStats} />
-          </div>
-          <TextField
-            id="spelling"
-            label="Spelling"
-            variant="outlined"
-            value={attemptedSpelling}
-            onKeyDown={handleKeyDown}
-            autoFocus
-            autoComplete="off"
-          />
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <Button variant="contained" onClick={repeatClick}>
-              Repeat
-            </Button>
-            <Button
-              variant="contained"
-              onClick={showResults}
-              style={{ width: "97px" }}
+          <FormControl fullWidth>
+            <InputLabel id="word-list-label">Word List</InputLabel>
+            <Select
+              labelId="word-list-label"
+              id="word-list-select"
+              value={currentWordList.id}
+              label="Word List"
+              onChange={handleChange}
             >
-              Check
-            </Button>
-          </div>
+              <MenuItem value=""></MenuItem>
+              {wordLists.map((wordList) => {
+                return (
+                  <MenuItem key={wordList.id} value={wordList.id}>
+                    {wordList.name}
+                  </MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>
+          {operation === "waiting-to-start" && (
+            <>
+              <TextField
+                label="Words"
+                multiline
+                rows={4}
+                value={currentWordList.words}
+                variant="outlined"
+                style={{
+                  marginTop: "20px",
+                  width: "100%",
+                }}
+              />
+              <div
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  justifyContent: "flex-end",
+                }}
+              >
+                <Button
+                  variant="contained"
+                  style={{ marginTop: "20px" }}
+                  onClick={handleStartClick}
+                >
+                  Start
+                </Button>
+              </div>
+            </>
+          )}
+          {operation === "started" && (
+            <>
+              <TextField
+                label="Spelling Attempt"
+                value={spellingAttempt}
+                inputRef={spellingAttemptRef}
+                autoFocus
+                onChange={handleSpellingAttemptChange}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    handleNextClick();
+                  }
+                }}
+                variant="outlined"
+                style={{
+                  marginTop: "20px",
+                  width: "100%",
+                }}
+              />
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginTop: "20px",
+                  width: "100%",
+                }}
+              >
+                <SmallStats wordStats={wordStats} />
+                <div display="flex">
+                  <Button
+                    variant="contained"
+                    style={{ marginRight: "10px" }}
+                    onClick={handleRepeatClick}
+                  >
+                    Repeat
+                  </Button>
+                  <Button variant="contained" onClick={handleNextClick}>
+                    Next
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
+          {operation === "finished" && (
+            <>
+              <Stats wordStats={wordStats} />
+              <div
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  justifyContent: "flex-end",
+                }}
+              >
+                <Button
+                  variant="contained"
+                  style={{ marginTop: "20px" }}
+                  onClick={() => {
+                    setOperation("waiting-to-start");
+                  }}
+                >
+                  Restart
+                </Button>
+              </div>
+            </>
+          )}
         </div>
       )}
-      {status === "showing_results" && (
-        <div style={{ textAlign: "center", fontSize: "24px" }}>
-          <p>{message}</p>
-          <Button variant="contained" onClick={mainButtonClick}>
-            Next Word
-          </Button>
-        </div>
-      )}
-      {["waiting_to_start"].includes(status) && (
-        <Button variant="contained" onClick={mainButtonClick}>
-          {started ? "Next Word" : "Start"}
-        </Button>
-      )}
-    </div>
+    </>
   );
 };
 

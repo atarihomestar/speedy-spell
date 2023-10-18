@@ -36,22 +36,23 @@ export const signup = async (email, password) => {
   }
 };
 
-export const getWordLists = async (user, setWordLists) => {
+export const getWordLists = async (user) => {
+  console.log("user3", user);
   const q = query(collection(db, "wordLists"), where("uid", "==", user.uid));
+  console.log("q: ", q);
   const querySnapshot = await getDocs(q);
   let temp = querySnapshot.docs.map((doc) => {
     return { id: doc.id, data: doc.data() };
   });
-  setWordLists(
-    temp.map((wordList) => {
-      return {
-        id: wordList.id,
-        uid: wordList.data.uid,
-        name: wordList.data.name,
-        words: wordList.data.words.join(", "),
-      };
-    })
-  );
+  console.log("temp: ", temp);
+  return temp.map((wordList) => {
+    return {
+      id: wordList.id,
+      uid: wordList.data.uid,
+      name: wordList.data.name,
+      words: wordList.data.words.join(", "),
+    };
+  });
 };
 
 export const saveWordList = async (id, uid, name, words) => {
@@ -65,7 +66,7 @@ export const saveWordList = async (id, uid, name, words) => {
   console.log("id!: ", id);
 
   if (id) {
-    const wordListRef = doc(db, "wordList", id);
+    const wordListRef = doc(db, "wordLists", id);
     console.log("wordListRef: ", wordListRef);
     await updateDoc(wordListRef, data);
   } else {

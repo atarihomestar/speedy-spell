@@ -40,8 +40,12 @@ export const WordLists = () => {
 
   const { user } = useAuth();
 
-  useEffect(() => {
+  const updateWordLists = () => {
     getWordLists(user, setWordLists);
+  };
+
+  useEffect(() => {
+    updateWordLists();
   }, [user]);
 
   const onRowClick = (id, uid, name, words) => {
@@ -57,6 +61,7 @@ export const WordLists = () => {
           add={add}
           setShowPopup={setShowPopup}
           data={selectedRowData}
+          updateWordLists={updateWordLists}
         />
       ) : (
         <TableContainer component={Paper} sx={{ width: 450 }}>

@@ -9,8 +9,7 @@ import TextField from "@mui/material/TextField";
 
 import { saveWordList } from "../../utils/firebase";
 
-const WordListPopup = ({ add, setShowPopup, data }) => {
-  console.log("data: ", data);
+const WordListPopup = ({ add, setShowPopup, data, updateWordLists }) => {
   const [newName, setNewName] = useState(data?.name);
   const [newWords, setNewWords] = useState(data?.words);
 
@@ -29,6 +28,7 @@ const WordListPopup = ({ add, setShowPopup, data }) => {
   const handleAddUpdateClick = () => {
     console.log("datata: ", data?.id, data?.uid, newName, newWords);
     saveWordList(add ? null : data?.id, data?.uid, newName, newWords);
+    updateWordLists();
     setShowPopup(false);
   };
 

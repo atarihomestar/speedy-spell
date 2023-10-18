@@ -30,11 +30,12 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 const Stats = ({ wordStats }) => {
   return (
-    <TableContainer component={Paper} sx={{ width: 650 }}>
-      <Table sx={{ minWidth: 650 }} aria-label="simple table">
+    <TableContainer component={Paper} sx={{ marginTop: "20px" }}>
+      <Table aria-label="simple table">
         <TableHead>
           <TableRow>
             <StyledTableCell>Word</StyledTableCell>
+            <StyledTableCell align="right">Incorrect Attempts</StyledTableCell>
             <StyledTableCell align="right">Attempts</StyledTableCell>
           </TableRow>
         </TableHead>
@@ -47,7 +48,12 @@ const Stats = ({ wordStats }) => {
               <StyledTableCell component="th" scope="row">
                 {row.word}
               </StyledTableCell>
-              <StyledTableCell align="right">{row.attempts}</StyledTableCell>
+              <StyledTableCell align="right">
+                {row.incorrectAttempts}
+              </StyledTableCell>
+              <StyledTableCell align="right">
+                {row.numberOfAttempts}
+              </StyledTableCell>
             </StyledTableRow>
           ))}
         </TableBody>

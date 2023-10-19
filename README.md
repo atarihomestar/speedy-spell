@@ -53,14 +53,14 @@ Before you begin, ensure you have met the following requirements:
     
     ```sh
     
-    `git clone https://github.com/atarihomestar/speedy-spell.git` 
+    git clone https://github.com/atarihomestar/speedy-spell.git
     
 2.  Install dependencies:
     
     ```sh
     
-    `cd speedy-spell
-    npm install` 
+    cd speedy-spell
+    npm install
     
 3.  Create a Firebase project and configure the Firebase credentials in your app.
     
@@ -68,7 +68,7 @@ Before you begin, ensure you have met the following requirements:
     
     ```sh
     
-    `npm start` 
+    npm start 
     
 5.  Open your web browser and visit `http://localhost:3000`.
     

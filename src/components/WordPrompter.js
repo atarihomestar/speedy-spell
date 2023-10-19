@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 
@@ -16,7 +16,8 @@ import { useAuth } from "../contexts/AuthContext";
 import "./WordPrompter.css";
 
 const WordPrompter = () => {
-  const msg = new SpeechSynthesisUtterance();
+  // const msg = new SpeechSynthesisUtterance();
+  const msg = useMemo(() => new SpeechSynthesisUtterance(), []);
 
   const { user } = useAuth();
   const spellingAttemptRef = useRef();
@@ -67,7 +68,7 @@ const WordPrompter = () => {
         }
       }
     }
-  }, [currentWordIndex]);
+  }, [currentWordIndex, operation, msg]);
 
   const handleChange = (event) => {
     const selectedWordList = wordLists.find(
@@ -159,19 +160,21 @@ const WordPrompter = () => {
   };
 
   const handleNextClick = () => {
-    const attemptedWord = getWordFromList(currentWordIndex);
-    setCorrectSpelling(attemptedWord);
-    updateWordStats(spellingAttempt, attemptedWord);
-    if (spellingAttempt.toLowerCase() === attemptedWord.toLowerCase()) {
-      setCorrect(true);
-      setOpen(true);
-    } else {
-      setCorrect(false);
-      setOpen(true);
-    }
+    if (spellingAttempt !== "") {
+      const attemptedWord = getWordFromList(currentWordIndex);
+      setCorrectSpelling(attemptedWord);
+      updateWordStats(spellingAttempt, attemptedWord);
+      if (spellingAttempt.toLowerCase() === attemptedWord.toLowerCase()) {
+        setCorrect(true);
+        setOpen(true);
+      } else {
+        setCorrect(false);
+        setOpen(true);
+      }
 
-    if (allWordsCorrect()) {
-      setOperation("finished");
+      if (allWordsCorrect()) {
+        setOperation("finished");
+      }
     }
 
     const nextIncorrectIndex = getNextIncorrectWordIndex(

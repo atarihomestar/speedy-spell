@@ -1,13 +1,14 @@
 import { useState } from "react";
 
-import Button from "@mui/material/Button";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { Button, IconButton } from "@mui/material";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
 
-import { saveWordList } from "../../utils/firebase";
+import { saveWordList, deleteWordList } from "../../utils/firebase";
 
 const WordListPopup = ({ add, setShowPopup, data, updateWordLists }) => {
   const [newName, setNewName] = useState(data?.name);
@@ -22,6 +23,13 @@ const WordListPopup = ({ add, setShowPopup, data, updateWordLists }) => {
   };
 
   const handleCancelClick = () => {
+    setShowPopup(false);
+  };
+
+  const handleDeleteClick = () => {
+    console.log("data: ", data);
+    deleteWordList(data.id);
+    updateWordLists();
     setShowPopup(false);
   };
 
@@ -57,9 +65,26 @@ const WordListPopup = ({ add, setShowPopup, data, updateWordLists }) => {
           multiline
         />
       </DialogContent>
-      <DialogActions>
-        <Button onClick={handleCancelClick}>Cancel</Button>
-        <Button onClick={handleAddUpdateClick}>{add ? "Add" : "Update"}</Button>
+      <DialogActions
+        sx={{
+          display: "flex",
+          justifyContent: add ? "flex-end" : "space-between",
+        }}
+      >
+        {add ? null : (
+          <IconButton onClick={handleDeleteClick} sx={{ marginLeft: 0 }}>
+            <DeleteIcon />
+          </IconButton>
+        )}
+        <div>
+          <Button onClick={handleCancelClick}>Cancel</Button>
+          <Button
+            onClick={handleAddUpdateClick}
+            disabled={!newName || !newWords}
+          >
+            {add ? "Add" : "Update"}
+          </Button>
+        </div>
       </DialogActions>
     </Dialog>
   );

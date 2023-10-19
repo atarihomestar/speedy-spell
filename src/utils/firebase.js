@@ -14,6 +14,7 @@ import {
   doc,
   addDoc,
   updateDoc,
+  deleteDoc,
 } from "firebase/firestore";
 
 export const login = async (email, password) => {
@@ -55,7 +56,7 @@ export const getWordLists = async (user) => {
   });
 };
 
-export const saveWordList = async (id, uid, name, words) => {
+export const saveWordList = (id, uid, name, words) => {
   const data = {
     uid: uid,
     name: name,
@@ -68,9 +69,13 @@ export const saveWordList = async (id, uid, name, words) => {
   if (id) {
     const wordListRef = doc(db, "wordLists", id);
     console.log("wordListRef: ", wordListRef);
-    await updateDoc(wordListRef, data);
+    updateDoc(wordListRef, data);
   } else {
     console.log("here?");
-    await addDoc(collection(db, "wordLists"), data);
+    addDoc(collection(db, "wordLists"), data);
   }
+};
+
+export const deleteWordList = async (id) => {
+  deleteDoc(doc(db, "wordLists", id));
 };

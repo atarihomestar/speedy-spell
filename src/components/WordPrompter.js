@@ -9,12 +9,6 @@ import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import Stats from "./Stats";
 import SmallStats from "./SmallStats";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
 
 import { getWordLists } from "../utils/firebase";
 import { useAuth } from "../contexts/AuthContext";
@@ -34,7 +28,7 @@ const WordPrompter = () => {
   const [wordStats, setWordStats] = useState(null);
   const [open, setOpen] = useState(false);
   const [correct, setCorrect] = useState(false);
-
+  const [correctSpelling, setCorrectSpelling] = useState("");
   const [operation, setOperation] = useState("");
 
   useEffect(() => {
@@ -62,11 +56,13 @@ const WordPrompter = () => {
   useEffect(() => {
     console.log("in currentWordIndex useEffect");
     if (operation === "started") {
-      if (currentWordIndex != -1 && currentWordList) {
+      if (currentWordIndex !== -1 && currentWordList) {
         console.log("got here");
         let word = getWordFromList(currentWordIndex);
+        console.log("word: ", word);
         if (word) {
           msg.text = word;
+          console.log("speaking word: ", word);
           window.speechSynthesis.speak(msg);
         }
       }
@@ -163,8 +159,10 @@ const WordPrompter = () => {
   };
 
   const handleNextClick = () => {
-    updateWordStats(spellingAttempt, getWordFromList(currentWordIndex));
-    if (spellingAttempt.toLowerCase() === getWordFromList(currentWordIndex)) {
+    const attemptedWord = getWordFromList(currentWordIndex);
+    setCorrectSpelling(attemptedWord);
+    updateWordStats(spellingAttempt, attemptedWord);
+    if (spellingAttempt.toLowerCase() === attemptedWord.toLowerCase()) {
       setCorrect(true);
       setOpen(true);
     } else {
@@ -219,7 +217,9 @@ const WordPrompter = () => {
       >
         <div>
           <Alert onClose={handleClose} severity={correct ? "success" : "error"}>
-            {correct ? "Correct!" : "Incorrect!"}
+            {correct
+              ? "Correct!"
+              : 'Incorrect! The correct spelling is "' + correctSpelling + '"'}
           </Alert>
         </div>
       </Snackbar>

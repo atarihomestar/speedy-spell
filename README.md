@@ -1,7 +1,7 @@
 
-# Spelling Practice App
+# Speedy Speller
 
-![App Screenshot](https://chat.openai.com/c/screenshot.png)
+![App Screenshot](screenshots/practice.png)
 
 ## Table of Contents
 
@@ -51,24 +51,24 @@ Before you begin, ensure you have met the following requirements:
 
 1.  Clone the repository:
     
-    shCopy code
+    ```sh
     
-    `git clone https://github.com/atarihomestar/speedy-spell.git` 
+    git clone https://github.com/atarihomestar/speedy-spell.git
     
 2.  Install dependencies:
     
-    shCopy code
+    ```sh
     
-    `cd speedy-spell
-    npm install` 
+    cd speedy-spell
+    npm install
     
 3.  Create a Firebase project and configure the Firebase credentials in your app.
     
 4.  Run the development server:
     
-    shCopy code
+    ```sh
     
-    `npm start` 
+    npm start 
     
 5.  Open your web browser and visit `http://localhost:3000`.
     
@@ -86,7 +86,7 @@ Before you begin, ensure you have met the following requirements:
 
 ## Screenshots
 
-![App Screenshot 1](https://chat.openai.com/c/screenshots/screenshot1.png) ![App Screenshot 2](https://chat.openai.com/c/screenshots/screenshot2.png)
+![App Screenshot 1](screenshots/word-lists.png) ![App Screenshot 2](screenshots/login.png)
 
 ## Technologies Used
 

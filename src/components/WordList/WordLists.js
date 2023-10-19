@@ -78,7 +78,9 @@ export const WordLists = () => {
             <Table sx={{ minWidth: 450 }} aria-label="simple table">
               <TableHead>
                 <TableRow>
-                  <StyledTableCell>List Name</StyledTableCell>
+                  <StyledTableCell style={{ width: "100px" }}>
+                    List Name
+                  </StyledTableCell>
                   <StyledTableCell align="right">Words</StyledTableCell>
                 </TableRow>
               </TableHead>

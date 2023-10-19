@@ -51,13 +51,13 @@ Before you begin, ensure you have met the following requirements:
 
 1.  Clone the repository:
     
-    shCopy code
+    ```sh
     
     `git clone https://github.com/atarihomestar/speedy-spell.git` 
     
 2.  Install dependencies:
     
-    shCopy code
+    ```sh
     
     `cd speedy-spell
     npm install` 
@@ -66,7 +66,7 @@ Before you begin, ensure you have met the following requirements:
     
 4.  Run the development server:
     
-    shCopy code
+    ```sh
     
     `npm start` 
     

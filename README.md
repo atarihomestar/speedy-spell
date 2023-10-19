@@ -5,22 +5,21 @@
 
 ## Table of Contents
 
--   [Introduction](https://chat.openai.com/c/53c880fb-afaf-4b7f-b82e-c473360861db#introduction)
--   [Features](https://chat.openai.com/c/53c880fb-afaf-4b7f-b82e-c473360861db#features)
--   [Demo](https://chat.openai.com/c/53c880fb-afaf-4b7f-b82e-c473360861db#demo)
--   [Getting Started](https://chat.openai.com/c/53c880fb-afaf-4b7f-b82e-c473360861db#getting-started)
-    -   [Prerequisites](https://chat.openai.com/c/53c880fb-afaf-4b7f-b82e-c473360861db#prerequisites)
-    -   [Installation](https://chat.openai.com/c/53c880fb-afaf-4b7f-b82e-c473360861db#installation)
--   [Usage](https://chat.openai.com/c/53c880fb-afaf-4b7f-b82e-c473360861db#usage)
--   [Screenshots](https://chat.openai.com/c/53c880fb-afaf-4b7f-b82e-c473360861db#screenshots)
--   [Technologies Used](https://chat.openai.com/c/53c880fb-afaf-4b7f-b82e-c473360861db#technologies-used)
--   [Contributing](https://chat.openai.com/c/53c880fb-afaf-4b7f-b82e-c473360861db#contributing)
--   [License](https://chat.openai.com/c/53c880fb-afaf-4b7f-b82e-c473360861db#license)
--   [Acknowledgments](https://chat.openai.com/c/53c880fb-afaf-4b7f-b82e-c473360861db#acknowledgments)
+-   [Introduction](#introduction)
+-   [Features](#features)
+-   [Demo](#demo)
+-   [Getting Started](#getting-started)
+    -   [Prerequisites](#prerequisites)
+    -   [Installation](#installation)
+-   [Usage](#usage)
+-   [Screenshots](#screenshots)
+-   [Technologies Used](#technologies-used)
+-   [Contributing](#contributing)
+-   [License](#license)
 
 ## Introduction
 
-The Spelling Practice App is a web application that allows you to create, update, and edit lists of words that you can use to practice your spelling skills. It provides valuable statistics at the end of your practice sessions, showing you how you performed.
+Speedy Speller is a web application that allows you to create, update, and edit lists of words that you can use to practice your spelling skills. It provides valuable statistics at the end of your practice sessions, showing you how you performed.
 
 ## Features
 
@@ -37,7 +36,7 @@ The Spelling Practice App is a web application that allows you to create, update
 
 ## Demo
 
-[Link to live demo](https://yourappurl.com/)
+[Link to live demo](https://speedy-speller.firebaseapp.com/)
 
 ## Getting Started
 
@@ -54,13 +53,13 @@ Before you begin, ensure you have met the following requirements:
     
     shCopy code
     
-    `git clone https://github.com/yourusername/spelling-practice-app.git` 
+    `git clone https://github.com/atarihomestar/speedy-spell.git` 
     
 2.  Install dependencies:
     
     shCopy code
     
-    `cd spelling-practice-app
+    `cd speedy-spell
     npm install` 
     
 3.  Create a Firebase project and configure the Firebase credentials in your app.

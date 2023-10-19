@@ -29,6 +29,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 
 const Stats = ({ wordStats }) => {
+  console.log("wordStats: ", wordStats);
   return (
     <TableContainer component={Paper} sx={{ marginTop: "20px" }}>
       <Table aria-label="simple table">
@@ -40,9 +41,9 @@ const Stats = ({ wordStats }) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {wordStats.map((row) => (
+          {wordStats.map((row, index) => (
             <StyledTableRow
-              key={row.name}
+              key={row.index}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
               <StyledTableCell component="th" scope="row">

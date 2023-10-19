@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { styled } from "@mui/material/styles";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -42,14 +42,14 @@ export const WordLists = () => {
 
   const { user } = useAuth();
 
-  const updateWordLists = async () => {
+  const updateWordLists = useCallback(async () => {
     const newWordLists = await getWordLists(user);
     setWordLists(newWordLists);
-  };
+  }, [user]);
 
   useEffect(() => {
     updateWordLists();
-  }, [user]);
+  }, [user, updateWordLists]);
 
   const onRowClick = (id, uid, name, words) => {
     setAdd(false);

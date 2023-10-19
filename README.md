@@ -1,7 +1,7 @@
 
-# Spelling Practice App
+# Speedy Speller
 
-![App Screenshot](https://chat.openai.com/c/screenshot.png)
+![App Screenshot](screenshots/Practice Screenshot.png)
 
 ## Table of Contents
 
@@ -86,7 +86,7 @@ Before you begin, ensure you have met the following requirements:
 
 ## Screenshots
 
-![App Screenshot 1](https://chat.openai.com/c/screenshots/screenshot1.png) ![App Screenshot 2](https://chat.openai.com/c/screenshots/screenshot2.png)
+![App Screenshot 1](screenshots/word-lists.png) ![App Screenshot 2](screenshots/login.png)
 
 ## Technologies Used
 

@@ -1,7 +1,7 @@
 
 # Speedy Speller
 
-![App Screenshot](screenshots/Practice Screenshot.png)
+![App Screenshot](screenshots/practice.png)
 
 ## Table of Contents
 

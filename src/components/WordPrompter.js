@@ -16,7 +16,6 @@ import { useAuth } from "../contexts/AuthContext";
 import "./WordPrompter.css";
 
 const WordPrompter = () => {
-  // const msg = new SpeechSynthesisUtterance();
   const msg = useMemo(() => new SpeechSynthesisUtterance(), []);
 
   const { user } = useAuth();
@@ -41,18 +40,20 @@ const WordPrompter = () => {
     })();
   }, [user]);
 
-  const getWordFromList = (index) => {
-    console.log("currentWordList", currentWordList);
-    if (currentWordList) {
-      let currentWords = currentWordList.words
-        .split(",")
-        .map((word) => word.trim());
-      if (index <= currentWords.length - 1) {
-        return currentWords[index];
+  const getWordFromList = useMemo(() => {
+    return (index) => {
+      console.log("currentWordList", currentWordList);
+      if (currentWordList) {
+        let currentWords = currentWordList.words
+          .split(",")
+          .map((word) => word.trim());
+        if (index <= currentWords.length - 1) {
+          return currentWords[index];
+        }
       }
-    }
-    return null;
-  };
+      return null;
+    };
+  }, [currentWordList]);
 
   useEffect(() => {
     console.log("in currentWordIndex useEffect");
@@ -68,7 +69,7 @@ const WordPrompter = () => {
         }
       }
     }
-  }, [currentWordIndex, operation, msg]);
+  }, [currentWordIndex, currentWordList, operation, msg, getWordFromList]);
 
   const handleChange = (event) => {
     const selectedWordList = wordLists.find(

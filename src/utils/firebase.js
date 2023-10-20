@@ -53,7 +53,7 @@ export const getWordLists = async (user) => {
   });
 };
 
-export const saveWordList = (id, uid, name, words) => {
+export const saveWordList = async (id, uid, name, words) => {
   const data = {
     uid: uid,
     name: name,
@@ -62,12 +62,12 @@ export const saveWordList = (id, uid, name, words) => {
 
   if (id) {
     const wordListRef = doc(db, "wordLists", id);
-    updateDoc(wordListRef, data);
+    await updateDoc(wordListRef, data);
   } else {
-    addDoc(collection(db, "wordLists"), data);
+    await addDoc(collection(db, "wordLists"), data);
   }
 };
 
-export const deleteWordList = (id) => {
-  deleteDoc(doc(db, "wordLists", id));
+export const deleteWordList = async (id) => {
+  await deleteDoc(doc(db, "wordLists", id));
 };

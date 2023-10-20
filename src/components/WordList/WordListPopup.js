@@ -27,14 +27,12 @@ const WordListPopup = ({ add, setShowPopup, data, updateWordLists }) => {
   };
 
   const handleDeleteClick = () => {
-    console.log("data: ", data);
     deleteWordList(data.id);
     updateWordLists();
     setShowPopup(false);
   };
 
   const handleAddUpdateClick = () => {
-    console.log("datata: ", data?.id, data?.uid, newName, newWords);
     saveWordList(add ? null : data?.id, data?.uid, newName, newWords);
     updateWordLists();
     setShowPopup(false);

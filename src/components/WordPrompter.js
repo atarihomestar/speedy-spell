@@ -42,7 +42,6 @@ const WordPrompter = () => {
 
   const getWordFromList = useMemo(() => {
     return (index) => {
-      console.log("currentWordList", currentWordList);
       if (currentWordList) {
         let currentWords = currentWordList.words
           .split(",")
@@ -56,15 +55,11 @@ const WordPrompter = () => {
   }, [currentWordList]);
 
   useEffect(() => {
-    console.log("in currentWordIndex useEffect");
     if (operation === "started") {
       if (currentWordIndex !== -1 && currentWordList) {
-        console.log("got here");
         let word = getWordFromList(currentWordIndex);
-        console.log("word: ", word);
         if (word) {
           msg.text = word;
-          console.log("speaking word: ", word);
           window.speechSynthesis.speak(msg);
         }
       }
@@ -101,9 +96,6 @@ const WordPrompter = () => {
   };
 
   const handleStartClick = () => {
-    console.log("handleStartClick");
-    console.log("currentWordList", currentWordList);
-    console.log("currentWordIndex", currentWordIndex);
     setOperation("started");
     setCurrentWordIndex(0);
     setSpellingAttempt("");
@@ -111,9 +103,6 @@ const WordPrompter = () => {
   };
 
   const updateWordStats = (spellingAttempt, word) => {
-    console.log("spellingAttempt: !" + spellingAttempt + "!");
-    console.log("word: !" + word + "!");
-    console.log(spellingAttempt, word);
     let newWordStats = [...wordStats];
     let wordStat = newWordStats.find((wordStat) => {
       return wordStat.word.toLowerCase() === word.toLowerCase();

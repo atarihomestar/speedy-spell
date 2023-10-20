@@ -22,14 +22,12 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   "&:nth-of-type(odd)": {
     backgroundColor: theme.palette.action.hover,
   },
-  // hide last border
   "&:last-child td, &:last-child th": {
     border: 0,
   },
 }));
 
 const Stats = ({ wordStats }) => {
-  console.log("wordStats: ", wordStats);
   return (
     <TableContainer component={Paper} sx={{ marginTop: "20px" }}>
       <Table aria-label="simple table">

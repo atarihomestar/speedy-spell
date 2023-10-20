@@ -59,7 +59,7 @@ export const WordLists = () => {
 
   const handleAddButtonClick = () => {
     setAdd(true);
-    setSelectedRowData({ uid: user.uid });
+    setSelectedRowData({ uid: user.uid, name: "", words: "" });
     setShowPopup(true);
   };
 

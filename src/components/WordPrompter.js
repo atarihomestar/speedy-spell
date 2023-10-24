@@ -12,7 +12,6 @@ import SmallStats from "./SmallStats";
 
 import { getWordLists } from "../utils/firebase";
 import { useAuth } from "../contexts/AuthContext";
-
 import "./WordPrompter.css";
 
 const WordPrompter = () => {
@@ -22,28 +21,42 @@ const WordPrompter = () => {
   const spellingAttemptRef = useRef();
 
   const [wordLists, setWordLists] = useState(null);
-  const [currentWordList, setCurrentWordList] = useState(null);
-  const [currentWordIndex, setCurrentWordIndex] = useState(-1);
+  const [currentWordListIndex, setCurrentWordListIndex] = useState(0);
+
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [spellingAttempt, setSpellingAttempt] = useState("");
   const [wordStats, setWordStats] = useState(null);
-  const [open, setOpen] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [correct, setCorrect] = useState(false);
   const [correctSpelling, setCorrectSpelling] = useState("");
   const [operation, setOperation] = useState("");
 
   useEffect(() => {
+    if (!snackbarOpen && !correct) {
+      spellingAttemptRef.current?.focus();
+    }
+  }, [snackbarOpen, correct]);
+
+  useEffect(() => {
+    if (wordStats && operation === "starting") {
+      sayNextWord();
+      setOperation("started");
+    }
+  }, [wordStats, operation]);
+
+  useEffect(() => {
     (async () => {
       const newWordLists = await getWordLists(user);
       setWordLists(newWordLists);
-      setCurrentWordList(newWordLists[0]);
+      setCurrentWordListIndex(0);
       setOperation("waiting-to-start");
     })();
   }, [user]);
 
   const getWordFromList = useMemo(() => {
     return (index) => {
-      if (currentWordList) {
-        let currentWords = currentWordList.words
+      if (wordStats) {
+        let currentWords = wordStats.words
           .split(",")
           .map((word) => word.trim());
         if (index <= currentWords.length - 1) {
@@ -52,36 +65,26 @@ const WordPrompter = () => {
       }
       return null;
     };
-  }, [currentWordList]);
+  }, [wordStats]);
 
-  useEffect(() => {
-    if (operation === "started") {
-      if (currentWordIndex !== -1 && currentWordList) {
-        let word = getWordFromList(currentWordIndex);
-        if (word) {
-          msg.text = word;
-          window.speechSynthesis.speak(msg);
-        }
-      }
-    }
-  }, [currentWordIndex, currentWordList, operation, msg, getWordFromList]);
-
-  const handleChange = (event) => {
-    const selectedWordList = wordLists.find(
+  const handleWordListChange = (event) => {
+    const selectedWordListIndex = wordLists.findIndex(
       (wordList) => wordList.id === event.target.value
     );
+    if (selectedWordListIndex >= 0) {
+      setCurrentWordListIndex(selectedWordListIndex);
+      setCurrentWordIndex(0);
 
-    if (selectedWordList) {
-      setCurrentWordList(selectedWordList);
-      setCurrentWordIndex(-1);
       setOperation("waiting-to-start");
     }
   };
 
   const setupWordStats = () => {
-    let currentWords = currentWordList.words
+    let currentWords = wordLists[currentWordListIndex].words
       .split(",")
-      .map((word) => word.trim());
+      .map((word) => word.trim())
+      .sort(() => Math.random() - 0.5);
+
     let newWordStats = [];
     for (let i = 0; i < currentWords.length; i++) {
       newWordStats.push({
@@ -96,9 +99,7 @@ const WordPrompter = () => {
   };
 
   const handleStartClick = () => {
-    setOperation("started");
-    setCurrentWordIndex(0);
-    setSpellingAttempt("");
+    setOperation("starting");
     setupWordStats();
   };
 
@@ -127,6 +128,11 @@ const WordPrompter = () => {
         break;
       }
     }
+    if (allCorrect) {
+      setTimeout(() => {
+        setSnackbarOpen(false);
+      }, 3000);
+    }
     return allCorrect;
   };
 
@@ -149,39 +155,48 @@ const WordPrompter = () => {
     return nextIncorrectIndex;
   };
 
-  const handleNextClick = () => {
-    if (spellingAttempt !== "") {
-      const attemptedWord = getWordFromList(currentWordIndex);
-      setCorrectSpelling(attemptedWord);
-      updateWordStats(spellingAttempt, attemptedWord);
-      if (spellingAttempt.toLowerCase() === attemptedWord.toLowerCase()) {
-        setCorrect(true);
-        setOpen(true);
-      } else {
-        setCorrect(false);
-        setOpen(true);
-      }
-
-      if (allWordsCorrect()) {
-        setOperation("finished");
-      }
-    }
-
+  const sayNextWord = () => {
     const nextIncorrectIndex = getNextIncorrectWordIndex(
       wordStats,
       currentWordIndex
     );
-    setCurrentWordIndex(nextIncorrectIndex);
     setSpellingAttempt("");
-    spellingAttemptRef.current.focus();
+    console.log("spellingAttemptRef", spellingAttemptRef);
+    spellingAttemptRef.current?.focus();
+    setCurrentWordIndex(nextIncorrectIndex);
+    msg.text = wordStats[nextIncorrectIndex].word;
+    window.speechSynthesis.speak(msg);
   };
 
+  const handleCheckClick = (event) => {
+    event.preventDefault();
+    console.log("spellingAttempt", spellingAttempt);
+    if (spellingAttempt !== "") {
+      const attemptedWord = wordStats[currentWordIndex].word;
+      setCorrectSpelling(attemptedWord);
+      updateWordStats(spellingAttempt, attemptedWord);
+      if (spellingAttempt.toLowerCase() === attemptedWord.toLowerCase()) {
+        setCorrect(true);
+        if (allWordsCorrect()) {
+          setOperation("finished");
+        } else {
+          sayNextWord();
+        }
+      } else {
+        setCorrect(false);
+      }
+      setSnackbarOpen(true);
+    }
+  };
+
+  const handleNextClick = () => {};
+
   const handleRepeatClick = () => {
-    let word = getWordFromList(currentWordIndex);
+    let word = wordStats[currentWordIndex].word;
     if (word) {
       msg.text = word;
       window.speechSynthesis.speak(msg);
-      spellingAttemptRef.current.focus();
+      spellingAttemptRef.current?.focus();
     }
   };
 
@@ -189,34 +204,41 @@ const WordPrompter = () => {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
   }
 
-  const handleClose = (event, reason) => {
+  const handleSnackbarClose = (event, reason) => {
     if (reason === "clickaway") {
       return;
     }
-    setOpen(false);
+    setSnackbarOpen(false);
+    if (!correct) {
+      sayNextWord();
+    }
   };
 
   const handleSpellingAttemptChange = (event) => {
+    console.log("handleSpellingAttemptChange", event.target.value);
     setSpellingAttempt(event.target.value);
   };
 
   return (
     <>
       <Snackbar
-        open={open}
-        autoHideDuration={3000}
-        onClose={handleClose}
+        open={snackbarOpen}
+        sx={{ height: "70%" }}
+        onClose={handleSnackbarClose}
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
       >
         <div>
-          <Alert onClose={handleClose} severity={correct ? "success" : "error"}>
+          <Alert
+            onClose={handleSnackbarClose}
+            severity={correct ? "success" : "error"}
+          >
             {correct
               ? "Correct!"
               : 'Incorrect! The correct spelling is "' + correctSpelling + '"'}
           </Alert>
         </div>
       </Snackbar>
-      {currentWordList && (
+      {wordLists && (
         <div
           className="container"
           style={{
@@ -232,9 +254,9 @@ const WordPrompter = () => {
             <Select
               labelId="word-list-label"
               id="word-list-select"
-              value={currentWordList.id}
+              value={wordLists[currentWordListIndex].id}
               label="Word List"
-              onChange={handleChange}
+              onChange={handleWordListChange}
             >
               <MenuItem value=""></MenuItem>
               {wordLists.map((wordList) => {
@@ -252,7 +274,7 @@ const WordPrompter = () => {
                 label="Words"
                 multiline
                 rows={4}
-                value={currentWordList.words}
+                value={wordLists[currentWordListIndex].words}
                 variant="outlined"
                 style={{
                   marginTop: "20px",
@@ -278,23 +300,24 @@ const WordPrompter = () => {
           )}
           {operation === "started" && (
             <>
-              <TextField
-                label="Spelling Attempt"
-                value={spellingAttempt}
-                inputRef={spellingAttemptRef}
-                autoFocus
-                onChange={handleSpellingAttemptChange}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter") {
-                    handleNextClick();
-                  }
-                }}
-                variant="outlined"
-                style={{
-                  marginTop: "20px",
-                  width: "100%",
-                }}
-              />
+              <form onSubmit={handleCheckClick}>
+                <TextField
+                  label="Spelling Attempt"
+                  value={spellingAttempt}
+                  inputRef={spellingAttemptRef}
+                  autoFocus
+                  onInput={(e) => {
+                    handleSpellingAttemptChange(e);
+                    setSnackbarOpen(false);
+                  }}
+                  variant="outlined"
+                  style={{
+                    marginTop: "20px",
+                    width: "100%",
+                  }}
+                  disabled={snackbarOpen && !correct}
+                />
+              </form>
               <div
                 style={{
                   display: "flex",
@@ -313,8 +336,8 @@ const WordPrompter = () => {
                   >
                     Repeat
                   </Button>
-                  <Button variant="contained" onClick={handleNextClick}>
-                    Next
+                  <Button variant="contained" onClick={handleCheckClick}>
+                    Check
                   </Button>
                 </div>
               </div>

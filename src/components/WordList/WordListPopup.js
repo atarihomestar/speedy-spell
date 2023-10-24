@@ -26,15 +26,15 @@ const WordListPopup = ({ add, setShowPopup, data, updateWordLists }) => {
     setShowPopup(false);
   };
 
-  const handleDeleteClick = () => {
-    deleteWordList(data.id);
-    updateWordLists();
+  const handleDeleteClick = async () => {
+    await deleteWordList(data.id);
+    await updateWordLists();
     setShowPopup(false);
   };
 
-  const handleAddUpdateClick = () => {
-    saveWordList(add ? null : data?.id, data?.uid, newName, newWords);
-    updateWordLists();
+  const handleAddUpdateClick = async () => {
+    await saveWordList(add ? null : data?.id, data?.uid, newName, newWords);
+    await updateWordLists();
     setShowPopup(false);
   };
 

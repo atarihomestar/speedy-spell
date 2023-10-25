@@ -28,7 +28,6 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 
 const Stats = ({ wordStats }) => {
-  console.log("wordStats", wordStats);
   return (
     <TableContainer component={Paper} sx={{ marginTop: "20px" }}>
       <Table aria-label="simple table">

@@ -43,7 +43,6 @@ const WordPrompter = () => {
       currentWordIndex
     );
     setSpellingAttempt("");
-    console.log("spellingAttemptRef", spellingAttemptRef);
     spellingAttemptRef.current?.focus();
     setCurrentWordIndex(nextIncorrectIndex);
     msg.text = wordStats[nextIncorrectIndex].word;
@@ -151,7 +150,7 @@ const WordPrompter = () => {
       }
     }
     if (nextIncorrectIndex === -1) {
-      for (let i = 0; i < currentWordIndex; i++) {
+      for (let i = 0; i < wordStats.length; i++) {
         if (!wordStats[i].correct) {
           nextIncorrectIndex = i;
           break;
@@ -163,7 +162,6 @@ const WordPrompter = () => {
 
   const handleCheckClick = (event) => {
     event.preventDefault();
-    console.log("spellingAttempt", spellingAttempt);
     if (spellingAttempt !== "") {
       const attemptedWord = wordStats[currentWordIndex].word;
       setCorrectSpelling(attemptedWord);
@@ -206,7 +204,6 @@ const WordPrompter = () => {
   };
 
   const handleSpellingAttemptChange = (event) => {
-    console.log("handleSpellingAttemptChange", event.target.value);
     setSpellingAttempt(event.target.value);
   };
 

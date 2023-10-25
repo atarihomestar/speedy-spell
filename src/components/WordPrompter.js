@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 
@@ -37,12 +37,32 @@ const WordPrompter = () => {
     }
   }, [snackbarOpen, correct]);
 
+  const sayNextWord = useCallback(() => {
+    const nextIncorrectIndex = getNextIncorrectWordIndex(
+      wordStats,
+      currentWordIndex
+    );
+    setSpellingAttempt("");
+    console.log("spellingAttemptRef", spellingAttemptRef);
+    spellingAttemptRef.current?.focus();
+    setCurrentWordIndex(nextIncorrectIndex);
+    msg.text = wordStats[nextIncorrectIndex].word;
+    window.speechSynthesis.speak(msg);
+  }, [
+    wordStats,
+    currentWordIndex,
+    setSpellingAttempt,
+    setCurrentWordIndex,
+    msg,
+    spellingAttemptRef,
+  ]);
+
   useEffect(() => {
     if (wordStats && operation === "starting") {
       sayNextWord();
       setOperation("started");
     }
-  }, [wordStats, operation]);
+  }, [wordStats, operation, sayNextWord]);
 
   useEffect(() => {
     (async () => {
@@ -52,20 +72,6 @@ const WordPrompter = () => {
       setOperation("waiting-to-start");
     })();
   }, [user]);
-
-  const getWordFromList = useMemo(() => {
-    return (index) => {
-      if (wordStats) {
-        let currentWords = wordStats.words
-          .split(",")
-          .map((word) => word.trim());
-        if (index <= currentWords.length - 1) {
-          return currentWords[index];
-        }
-      }
-      return null;
-    };
-  }, [wordStats]);
 
   const handleWordListChange = (event) => {
     const selectedWordListIndex = wordLists.findIndex(
@@ -155,19 +161,6 @@ const WordPrompter = () => {
     return nextIncorrectIndex;
   };
 
-  const sayNextWord = () => {
-    const nextIncorrectIndex = getNextIncorrectWordIndex(
-      wordStats,
-      currentWordIndex
-    );
-    setSpellingAttempt("");
-    console.log("spellingAttemptRef", spellingAttemptRef);
-    spellingAttemptRef.current?.focus();
-    setCurrentWordIndex(nextIncorrectIndex);
-    msg.text = wordStats[nextIncorrectIndex].word;
-    window.speechSynthesis.speak(msg);
-  };
-
   const handleCheckClick = (event) => {
     event.preventDefault();
     console.log("spellingAttempt", spellingAttempt);
@@ -188,8 +181,6 @@ const WordPrompter = () => {
       setSnackbarOpen(true);
     }
   };
-
-  const handleNextClick = () => {};
 
   const handleRepeatClick = () => {
     let word = wordStats[currentWordIndex].word;
@@ -300,7 +291,7 @@ const WordPrompter = () => {
           )}
           {operation === "started" && (
             <>
-              <form onSubmit={handleCheckClick}>
+              <form onSubmit={handleCheckClick} style={{ width: "100%" }}>
                 <TextField
                   label="Spelling Attempt"
                   value={spellingAttempt}

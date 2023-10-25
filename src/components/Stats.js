@@ -28,6 +28,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 
 const Stats = ({ wordStats }) => {
+  console.log("wordStats", wordStats);
   return (
     <TableContainer component={Paper} sx={{ marginTop: "20px" }}>
       <Table aria-label="simple table">
@@ -48,7 +49,7 @@ const Stats = ({ wordStats }) => {
                 {row.word}
               </StyledTableCell>
               <StyledTableCell align="right">
-                {row.incorrectAttempts}
+                {row.incorrectAttempts.join(", ")}
               </StyledTableCell>
               <StyledTableCell align="right">
                 {row.numberOfAttempts}

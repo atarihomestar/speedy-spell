@@ -143,12 +143,14 @@ const WordPrompter = () => {
 
   const getNextIncorrectWordIndex = (wordStats, currentWordIndex) => {
     let nextIncorrectIndex = -1;
+    // checking for incorrect words after current word
     for (let i = currentWordIndex + 1; i < wordStats.length; i++) {
       if (!wordStats[i].correct) {
         nextIncorrectIndex = i;
         break;
       }
     }
+    // checking for incorrect words before current word
     if (nextIncorrectIndex === -1) {
       for (let i = 0; i < wordStats.length; i++) {
         if (!wordStats[i].correct) {
@@ -205,6 +207,12 @@ const WordPrompter = () => {
 
   const handleSpellingAttemptChange = (event) => {
     setSpellingAttempt(event.target.value);
+  };
+
+  const numberOfPasses = () => {
+    return wordStats.reduce((acc, wordStat) => {
+      return wordStat.numberOfAttempts > acc ? wordStat.numberOfAttempts : acc;
+    }, 0);
   };
 
   return (
@@ -333,6 +341,20 @@ const WordPrompter = () => {
           )}
           {operation === "finished" && (
             <>
+              <p style={{ marginBottom: "0px" }}>
+                {numberOfPasses() > 1 ? (
+                  <span>
+                    It took you{" "}
+                    <span style={{ color: "red" }}>{numberOfPasses()}</span>{" "}
+                    passes to get all the words correct.
+                  </span>
+                ) : (
+                  <span>
+                    You got<span style={{ color: "green" }}> all </span>the
+                    words correct on your first pass!
+                  </span>
+                )}
+              </p>
               <Stats wordStats={wordStats} />
               <div
                 style={{

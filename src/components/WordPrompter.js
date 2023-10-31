@@ -112,6 +112,7 @@ const WordPrompter = () => {
   };
 
   const handleShowClick = () => {
+    setSpellingAttempt("");
     setShowWord(true);
   };
 

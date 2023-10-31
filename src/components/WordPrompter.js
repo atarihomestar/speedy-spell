@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Snackbar from "@mui/material/Snackbar";
-import MuiAlert from "@mui/material/Alert";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 
 import { Button, TextField } from "@mui/material";
 import InputLabel from "@mui/material/InputLabel";
@@ -11,6 +11,7 @@ import Stats from "./Stats";
 import SmallStats from "./SmallStats";
 
 import { getWordLists } from "../utils/firebase";
+import DisplayWordTemporarily from "./DisplayWordTemporarily";
 import { useAuth } from "../contexts/AuthContext";
 import "./WordPrompter.css";
 
@@ -26,16 +27,10 @@ const WordPrompter = () => {
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [spellingAttempt, setSpellingAttempt] = useState("");
   const [wordStats, setWordStats] = useState(null);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [correct, setCorrect] = useState(false);
-  const [correctSpelling, setCorrectSpelling] = useState("");
   const [operation, setOperation] = useState("");
-
-  useEffect(() => {
-    if (!snackbarOpen && !correct) {
-      spellingAttemptRef.current?.focus();
-    }
-  }, [snackbarOpen, correct]);
+  const [message, setMessage] = useState("");
+  const [showWord, setShowWord] = useState(false);
 
   const sayNextWord = useCallback(() => {
     const nextIncorrectIndex = getNextIncorrectWordIndex(
@@ -84,6 +79,13 @@ const WordPrompter = () => {
     }
   };
 
+  const doneShowingWord = () => {
+    setShowWord(false);
+    setTimeout(() => {
+      spellingAttemptRef.current?.focus();
+    }, 0);
+  };
+
   const setupWordStats = () => {
     let currentWords = wordLists[currentWordListIndex].words
       .split(",")
@@ -104,8 +106,13 @@ const WordPrompter = () => {
   };
 
   const handleStartClick = () => {
+    setMessage("");
     setOperation("starting");
     setupWordStats();
+  };
+
+  const handleShowClick = () => {
+    setShowWord(true);
   };
 
   const updateWordStats = (spellingAttempt, word) => {
@@ -134,9 +141,7 @@ const WordPrompter = () => {
       }
     }
     if (allCorrect) {
-      setTimeout(() => {
-        setSnackbarOpen(false);
-      }, 3000);
+      setTimeout(() => {}, 3000);
     }
     return allCorrect;
   };
@@ -166,23 +171,27 @@ const WordPrompter = () => {
     event.preventDefault();
     if (spellingAttempt !== "") {
       const attemptedWord = wordStats[currentWordIndex].word;
-      setCorrectSpelling(attemptedWord);
       updateWordStats(spellingAttempt, attemptedWord);
       if (spellingAttempt.toLowerCase() === attemptedWord.toLowerCase()) {
         setCorrect(true);
+        setMessage("Correct!");
         if (allWordsCorrect()) {
           setOperation("finished");
         } else {
           sayNextWord();
         }
       } else {
+        spellingAttemptRef.current?.select();
         setCorrect(false);
+        setMessage(`Incorrect! The correct spelling is "${attemptedWord}"`);
+        sayNextWord();
       }
-      setSnackbarOpen(true);
     }
   };
 
   const handleRepeatClick = () => {
+    setSpellingAttempt("");
+    setMessage("");
     let word = wordStats[currentWordIndex].word;
     if (word) {
       msg.text = word;
@@ -191,21 +200,8 @@ const WordPrompter = () => {
     }
   };
 
-  function Alert(props) {
-    return <MuiAlert elevation={6} variant="filled" {...props} />;
-  }
-
-  const handleSnackbarClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setSnackbarOpen(false);
-    if (!correct) {
-      sayNextWord();
-    }
-  };
-
   const handleSpellingAttemptChange = (event) => {
+    setMessage("");
     setSpellingAttempt(event.target.value);
   };
 
@@ -217,23 +213,6 @@ const WordPrompter = () => {
 
   return (
     <>
-      <Snackbar
-        open={snackbarOpen}
-        sx={{ height: "70%" }}
-        onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <div>
-          <Alert
-            onClose={handleSnackbarClose}
-            severity={correct ? "success" : "error"}
-          >
-            {correct
-              ? "Correct!"
-              : 'Incorrect! The correct spelling is "' + correctSpelling + '"'}
-          </Alert>
-        </div>
-      </Snackbar>
       {wordLists && (
         <div
           className="container"
@@ -288,6 +267,7 @@ const WordPrompter = () => {
                   variant="contained"
                   style={{ marginTop: "20px" }}
                   onClick={handleStartClick}
+                  disabled={showWord}
                 >
                   Start
                 </Button>
@@ -302,24 +282,64 @@ const WordPrompter = () => {
                   value={spellingAttempt}
                   inputRef={spellingAttemptRef}
                   autoFocus
+                  autoComplete="off"
                   onInput={(e) => {
                     handleSpellingAttemptChange(e);
-                    setSnackbarOpen(false);
                   }}
                   variant="outlined"
                   style={{
                     marginTop: "20px",
                     width: "100%",
                   }}
-                  disabled={snackbarOpen && !correct}
+                  disabled={showWord}
                 />
+                <div
+                  style={{
+                    marginTop: "18px",
+                    backgroundColor: showWord
+                      ? "#ed6c02"
+                      : message === ""
+                      ? "white"
+                      : correct
+                      ? "#2e7d32"
+                      : "#d32e2e",
+                    fontSize: "15px",
+                    color: "white",
+                    padding: "10px",
+                    borderRadius: "5px",
+                    display: "flex",
+                    alignItems: "center",
+                    minHeight: "24px",
+                  }}
+                >
+                  {showWord === true ? (
+                    <DisplayWordTemporarily
+                      word={wordStats[currentWordIndex].word}
+                      doneShowingWord={doneShowingWord}
+                    />
+                  ) : (
+                    !showWord &&
+                    message !== "" && (
+                      <>
+                        {correct ? (
+                          <CheckCircleOutlineIcon
+                            style={{ marginRight: "10px" }}
+                          />
+                        ) : (
+                          <ErrorOutlineIcon style={{ marginRight: "10px" }} />
+                        )}
+                        {message}
+                      </>
+                    )
+                  )}
+                </div>
               </form>
               <div
                 style={{
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
-                  marginTop: "20px",
+                  marginTop: "19px",
                   width: "100%",
                 }}
               >
@@ -327,12 +347,24 @@ const WordPrompter = () => {
                 <div display="flex">
                   <Button
                     variant="contained"
-                    style={{ marginRight: "10px" }}
+                    onClick={handleShowClick}
+                    disabled={showWord}
+                  >
+                    Show
+                  </Button>
+                  <Button
+                    variant="contained"
+                    style={{ marginLeft: "10px", marginRight: "10px" }}
                     onClick={handleRepeatClick}
+                    disabled={showWord}
                   >
                     Repeat
                   </Button>
-                  <Button variant="contained" onClick={handleCheckClick}>
+                  <Button
+                    variant="contained"
+                    onClick={handleCheckClick}
+                    disabled={showWord}
+                  >
                     Check
                   </Button>
                 </div>

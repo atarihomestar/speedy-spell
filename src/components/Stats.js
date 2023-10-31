@@ -34,7 +34,7 @@ const Stats = ({ wordStats }) => {
         <TableHead>
           <TableRow>
             <StyledTableCell>Word</StyledTableCell>
-            <StyledTableCell align="right">Incorrect Attempts</StyledTableCell>
+            {/* <StyledTableCell align="right">Incorrect Attempts</StyledTableCell> */}
             <StyledTableCell align="right">Attempts</StyledTableCell>
           </TableRow>
         </TableHead>
@@ -47,9 +47,9 @@ const Stats = ({ wordStats }) => {
               <StyledTableCell component="th" scope="row">
                 {row.word}
               </StyledTableCell>
-              <StyledTableCell align="right">
+              {/* <StyledTableCell align="right">
                 {row.incorrectAttempts.join(", ")}
-              </StyledTableCell>
+              </StyledTableCell> */}
               <StyledTableCell align="right">
                 {row.numberOfAttempts}
               </StyledTableCell>

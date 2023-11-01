@@ -251,25 +251,27 @@ const WordPrompter = () => {
             margin: "0 auto",
           }}
         >
-          <FormControl fullWidth>
-            <InputLabel id="word-list-label">Word List</InputLabel>
-            <Select
-              labelId="word-list-label"
-              id="word-list-select"
-              value={wordLists[currentWordListIndex].id}
-              label="Word List"
-              onChange={handleWordListChange}
-            >
-              <MenuItem value=""></MenuItem>
-              {wordLists.map((wordList) => {
-                return (
-                  <MenuItem key={wordList.id} value={wordList.id}>
-                    {wordList.name}
-                  </MenuItem>
-                );
-              })}
-            </Select>
-          </FormControl>
+          {operation !== "finished" && (
+            <FormControl fullWidth>
+              <InputLabel id="word-list-label">Word List</InputLabel>
+              <Select
+                labelId="word-list-label"
+                id="word-list-select"
+                value={wordLists[currentWordListIndex].id}
+                label="Word List"
+                onChange={handleWordListChange}
+              >
+                <MenuItem value=""></MenuItem>
+                {wordLists.map((wordList) => {
+                  return (
+                    <MenuItem key={wordList.id} value={wordList.id}>
+                      {wordList.name}
+                    </MenuItem>
+                  );
+                })}
+              </Select>
+            </FormControl>
+          )}
           {operation === "waiting-to-start" && (
             <>
               <TextField
@@ -416,7 +418,7 @@ const WordPrompter = () => {
                     setOperation("waiting-to-start");
                   }}
                 >
-                  Restart
+                  Done
                 </Button>
               </div>
             </>

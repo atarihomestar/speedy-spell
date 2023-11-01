@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   AppBar,
@@ -14,10 +14,12 @@ import { useAuth } from "../contexts/AuthContext";
 import { useAppState } from "../contexts/AppStateContext";
 import { useNavigate } from "react-router-dom";
 
+import { green } from "./styles/colors";
+
 const MyAppBar = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-  const { setSelectedItem } = useAppState();
+  const { selectedItem, setSelectedItem } = useAppState();
 
   const [anchorEl, setAnchorEl] = useState(null);
 
@@ -27,6 +29,7 @@ const MyAppBar = () => {
 
   const handleMenuClick = (componentName) => {
     setSelectedItem(componentName);
+    localStorage.setItem("selectedItem", componentName);
     setAnchorEl(null);
   };
 
@@ -38,12 +41,27 @@ const MyAppBar = () => {
     logout();
     navigate("/login");
     setSelectedItem(null);
+    localStorage.setItem("selectedItem", null);
   };
+
+  useEffect(() => {
+    if (user && !selectedItem) {
+      setSelectedItem("WordPrompter");
+      localStorage.setItem("selectedItem", "WordPrompter");
+    }
+  }, [user, selectedItem, setSelectedItem]);
+
+  useEffect(() => {
+    const storedItem = localStorage.getItem("selectedItem");
+    if (storedItem) {
+      setSelectedItem(storedItem);
+    }
+  }, [setSelectedItem]);
 
   return (
     <>
       <AppBar position="fixed">
-        <Toolbar sx={{ backgroundColor: "green" }}>
+        <Toolbar sx={{ backgroundColor: green }}>
           <IconButton
             size="large"
             edge="start"
@@ -67,8 +85,6 @@ const MyAppBar = () => {
                 {user.email}
               </Button>
             ) : (
-              // ...
-
               <Button
                 color="inherit"
                 component={Link}

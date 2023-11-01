@@ -112,18 +112,6 @@ const WordPrompter = () => {
     setWordStats(newWordStats);
   };
 
-  const handleStartClick = () => {
-    setMessage("");
-    setOperation("starting");
-    setupWordStats();
-    localStorage.setItem(userStorageKey, currentWordListIndex);
-  };
-
-  const handleShowClick = () => {
-    setSpellingAttempt("");
-    setShowWord(true);
-  };
-
   const updateWordStats = (spellingAttempt, word) => {
     let newWordStats = [...wordStats];
     let wordStat = newWordStats.find((wordStat) => {
@@ -196,6 +184,19 @@ const WordPrompter = () => {
         sayNextWord();
       }
     }
+  };
+
+  const handleStartClick = () => {
+    setMessage("");
+    setOperation("starting");
+    setupWordStats();
+    localStorage.setItem(userStorageKey, currentWordListIndex);
+  };
+
+  const handleShowClick = () => {
+    setSpellingAttempt("");
+    setMessage("");
+    setShowWord(true);
   };
 
   const handleRepeatClick = () => {

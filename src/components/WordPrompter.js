@@ -212,6 +212,30 @@ const WordPrompter = () => {
     }, 0);
   };
 
+  const finalMessage = () => {
+    const passes = numberOfPasses();
+    return (
+      <p style={{ marginBottom: "0px" }}>
+        {passes === 1 ? (
+          <span>
+            You got<span style={{ color: "#2e7d32" }}> all </span>the words
+            correct on your first pass! Wow!
+          </span>
+        ) : passes <= 3 ? (
+          <span>
+            It took you only <span style={{ color: "#ed6c02" }}>{passes}</span>{" "}
+            passes to get all the words correct. Keep trying! You can do it!
+          </span>
+        ) : (
+          <span>
+            It took you <span style={{ color: "#d32e2e" }}>{passes}</span>{" "}
+            passes to get all the words correct. Study more and try again!
+          </span>
+        )}
+      </p>
+    );
+  };
+
   return (
     <>
       {wordLists && (
@@ -374,20 +398,7 @@ const WordPrompter = () => {
           )}
           {operation === "finished" && (
             <>
-              <p style={{ marginBottom: "0px" }}>
-                {numberOfPasses() > 1 ? (
-                  <span>
-                    It took you{" "}
-                    <span style={{ color: "red" }}>{numberOfPasses()}</span>{" "}
-                    passes to get all the words correct.
-                  </span>
-                ) : (
-                  <span>
-                    You got<span style={{ color: "green" }}> all </span>the
-                    words correct on your first pass!
-                  </span>
-                )}
-              </p>
+              {finalMessage()}
               <Stats wordStats={wordStats} />
               <div
                 style={{

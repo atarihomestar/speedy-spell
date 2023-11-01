@@ -15,6 +15,8 @@ import DisplayWordTemporarily from "./DisplayWordTemporarily";
 import { useAuth } from "../contexts/AuthContext";
 import "./WordPrompter.css";
 
+import { green, orange, red } from "./styles/colors";
+
 const WordPrompter = () => {
   const msg = useMemo(() => new SpeechSynthesisUtterance(), []);
 
@@ -218,18 +220,18 @@ const WordPrompter = () => {
       <p style={{ marginBottom: "0px" }}>
         {passes === 1 ? (
           <span>
-            You got<span style={{ color: "#2e7d32" }}> all </span>the words
-            correct on your first pass! Wow!
+            You got<span style={{ color: green }}> all </span>the words correct
+            on your first pass! Wow!
           </span>
         ) : passes <= 3 ? (
           <span>
-            It took you only <span style={{ color: "#ed6c02" }}>{passes}</span>{" "}
+            It took you only <span style={{ color: orange }}>{passes}</span>{" "}
             passes to get all the words correct. Keep trying! You can do it!
           </span>
         ) : (
           <span>
-            It took you <span style={{ color: "#d32e2e" }}>{passes}</span>{" "}
-            passes to get all the words correct. Study more and try again!
+            It took you <span style={{ color: red }}>{passes}</span> passes to
+            get all the words correct. Study more and try again!
           </span>
         )}
       </p>
@@ -322,12 +324,12 @@ const WordPrompter = () => {
                   style={{
                     marginTop: "18px",
                     backgroundColor: showWord
-                      ? "#ed6c02"
+                      ? orange
                       : message === ""
                       ? "white"
                       : correct
-                      ? "#2e7d32"
-                      : "#d32e2e",
+                      ? green
+                      : red,
                     fontSize: "15px",
                     color: "white",
                     padding: "10px",

@@ -21,11 +21,13 @@ const WordPrompter = () => {
   const msg = useMemo(() => new SpeechSynthesisUtterance(), []);
 
   const { user } = useAuth();
+  const userStorageKey = `currentWordListIndex_${user.uid}`;
   const spellingAttemptRef = useRef();
 
   const [wordLists, setWordLists] = useState(null);
-  const [currentWordListIndex, setCurrentWordListIndex] = useState(0);
-
+  const [currentWordListIndex, setCurrentWordListIndex] = useState(
+    getWordListIndexFromLocalStorage()
+  );
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [spellingAttempt, setSpellingAttempt] = useState("");
   const [wordStats, setWordStats] = useState(null);
@@ -33,6 +35,10 @@ const WordPrompter = () => {
   const [operation, setOperation] = useState("");
   const [message, setMessage] = useState("");
   const [showWord, setShowWord] = useState(false);
+
+  function getWordListIndexFromLocalStorage() {
+    return localStorage.getItem(userStorageKey) || 0;
+  }
 
   const sayNextWord = useCallback(() => {
     const nextIncorrectIndex = getNextIncorrectWordIndex(
@@ -64,7 +70,7 @@ const WordPrompter = () => {
     (async () => {
       const newWordLists = await getWordLists(user);
       setWordLists(newWordLists);
-      setCurrentWordListIndex(0);
+      // setCurrentWordListIndex(0);
       setOperation("waiting-to-start");
     })();
   }, [user]);
@@ -76,7 +82,6 @@ const WordPrompter = () => {
     if (selectedWordListIndex >= 0) {
       setCurrentWordListIndex(selectedWordListIndex);
       setCurrentWordIndex(0);
-
       setOperation("waiting-to-start");
     }
   };
@@ -111,6 +116,7 @@ const WordPrompter = () => {
     setMessage("");
     setOperation("starting");
     setupWordStats();
+    localStorage.setItem(userStorageKey, currentWordListIndex);
   };
 
   const handleShowClick = () => {
@@ -240,7 +246,7 @@ const WordPrompter = () => {
 
   return (
     <>
-      {wordLists && (
+      {wordLists?.length > 0 && (
         <div
           className="container"
           style={{
